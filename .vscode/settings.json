@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "drv_mrf24j40.h": "c",
+        "compatibility.h": "c"
+    }
+}
