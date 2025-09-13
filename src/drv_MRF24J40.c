@@ -163,9 +163,9 @@ mrf24_state_t SetShortAddr(uint8_t reg_address, uint8_t valor) {
     mrf24_state_t estado = OPERATION_OK;
     reg_address = (uint8_t)(reg_address << SHIFT_SHORT_ADDR) | WRITE_8_BITS;
     SetCSPin(DISABLE);
-    if (WriteByteSPIPort(&reg_address) == SPI_COMM_ERROR)
+    if (SPI_COMM_ERROR == WriteByteSPIPort(&reg_address))
         estado = OPERATION_FAIL;
-    if (WriteByteSPIPort(&valor) == SPI_COMM_ERROR)
+    if (SPI_COMM_ERROR == WriteByteSPIPort(&valor))
         estado = OPERATION_FAIL;
     SetCSPin(ENABLE);
     return estado;
@@ -176,7 +176,7 @@ mrf24_state_t SetShortAddr(uint8_t reg_address, uint8_t valor) {
  *
  * @param  Dirección del registro - 1 byte
  * @param  uint8_t * Puntero a la variable donde se guardará el dato leído.
- * @return mrf24_state_t Estado de la operación (OPERATION_OK, OPERATION_FAIL).
+ * @return mrf24_state_t Estado de la operación (OPERATION_OK, OPERATION_FAIL, INVALID_VALUE).
  *
  * @note   Al escribir direcciones cortas (SHORT ADDRESS REGISTER) se comienza
  *         con el MSB en 0 indicando una dirección corta, 6 bits con la
@@ -184,12 +184,14 @@ mrf24_state_t SetShortAddr(uint8_t reg_address, uint8_t valor) {
  */
 mrf24_state_t GetShortAddr(uint8_t reg_address, uint8_t * respuesta) {
 
+    if (NULL == respuesta)
+        return INVALID_VALUE;
     mrf24_state_t estado = OPERATION_OK;
     reg_address = (uint8_t)(reg_address << SHIFT_SHORT_ADDR) & READ_8_BITS;
     SetCSPin(DISABLE);
-    if (WriteByteSPIPort(&reg_address) == SPI_COMM_ERROR)
+    if (SPI_COMM_ERROR == WriteByteSPIPort(&reg_address))
         estado = OPERATION_FAIL;
-    if (ReadByteSPIPort(respuesta) == SPI_COMM_ERROR)
+    if (SPI_COMM_ERROR == ReadByteSPIPort(respuesta))
         estado = OPERATION_FAIL;
     SetCSPin(ENABLE);
     return estado;
@@ -212,9 +214,9 @@ mrf24_state_t SetLongAddr(uint16_t reg_address, uint8_t valor) {
     mrf24_state_t estado = OPERATION_OK;
     reg_address = (reg_address << SHIFT_LONG_ADDR) | WRITE_16_BITS;
     SetCSPin(DISABLE);
-    if (Write2ByteSPIPort(&reg_address) == SPI_COMM_ERROR)
+    if (SPI_COMM_ERROR == Write2ByteSPIPort(&reg_address))
         estado = OPERATION_FAIL;
-    if (WriteByteSPIPort(&valor) == SPI_COMM_ERROR)
+    if (SPI_COMM_ERROR == WriteByteSPIPort(&valor))
         estado = OPERATION_FAIL;
     SetCSPin(ENABLE);
     return estado;
@@ -225,7 +227,7 @@ mrf24_state_t SetLongAddr(uint16_t reg_address, uint8_t valor) {
  *
  * @param  uint16_t Dirección del registro.
  * @param  uint8_t * Puntero a la variable donde se guardará el dato leído.
- * @return mrf24_state_t Estado de la operación (OPERATION_OK, OPERATION_FAIL).
+ * @return mrf24_state_t Estado de la operación (OPERATION_OK, OPERATION_FAIL, INVALID_VALUE).
  *
  * @note   Al escribir direcciones largas (LONG ADDRESS REGISTER) se comienza
  *         con el MSB en 1 indicando una dirección larga, 10 bits con la
@@ -234,12 +236,14 @@ mrf24_state_t SetLongAddr(uint16_t reg_address, uint8_t valor) {
  */
 mrf24_state_t GetLongAddr(uint16_t reg_address, uint8_t * respuesta) {
 
+    if (NULL == respuesta)
+        return INVALID_VALUE;
     mrf24_state_t estado = OPERATION_OK;
     reg_address = (reg_address << SHIFT_LONG_ADDR) | READ_16_BITS;
     SetCSPin(DISABLE);
-    if (Write2ByteSPIPort(&reg_address) == SPI_COMM_ERROR)
+    if (SPI_COMM_ERROR == Write2ByteSPIPort(&reg_address))
         estado = OPERATION_FAIL;
-    if (ReadByteSPIPort(respuesta) == SPI_COMM_ERROR)
+    if (SPI_COMM_ERROR == ReadByteSPIPort(respuesta))
         estado = OPERATION_FAIL;
     SetCSPin(ENABLE);
     return estado;
@@ -253,11 +257,11 @@ mrf24_state_t GetLongAddr(uint16_t reg_address, uint8_t * respuesta) {
  */
 mrf24_state_t ApplyChannel(void) {
 
-    if (SetLongAddr(RFCON0, data_config_s.channel) == OPERATION_FAIL)
+    if (OPERATION_FAIL == SetLongAddr(RFCON0, data_config_s.channel))
         return OPERATION_FAIL;
-    if (SetShortAddr(RFCTL, RFRST_HOLD) == OPERATION_FAIL)
+    if (OPERATION_FAIL == SetShortAddr(RFCTL, RFRST_HOLD))
         return OPERATION_FAIL;
-    if (SetShortAddr(RFCTL, VACIO) == OPERATION_FAIL)
+    if (OPERATION_FAIL == SetShortAddr(RFCTL, VACIO))
         return OPERATION_FAIL;
     delay_t(WAIT_1_MS);
     return OPERATION_OK;
@@ -271,13 +275,13 @@ mrf24_state_t ApplyChannel(void) {
  */
 mrf24_state_t ApplyDeviceAddress(void) {
 
-    if (SetShortAddr(SADRH, (uint8_t)(data_config_s.address >> SHIFT_BYTE)) == OPERATION_FAIL)
+    if (OPERATION_FAIL == SetShortAddr(SADRH, (uint8_t)(data_config_s.address >> SHIFT_BYTE)))
         return OPERATION_FAIL;
-    if (SetShortAddr(SADRL, (uint8_t)(data_config_s.address)) == OPERATION_FAIL)
+    if (OPERATION_FAIL == SetShortAddr(SADRL, (uint8_t)(data_config_s.address)))
         return OPERATION_FAIL;
-    if (SetShortAddr(PANIDH, (uint8_t)(data_config_s.panid >> SHIFT_BYTE)) == OPERATION_FAIL)
+    if (OPERATION_FAIL == SetShortAddr(PANIDH, (uint8_t)(data_config_s.panid >> SHIFT_BYTE)))
         return OPERATION_FAIL;
-    if (SetShortAddr(PANIDL, (uint8_t)(data_config_s.panid)) == OPERATION_FAIL)
+    if (OPERATION_FAIL == SetShortAddr(PANIDL, (uint8_t)(data_config_s.panid)))
         return OPERATION_FAIL;
     return OPERATION_OK;
 }
@@ -292,7 +296,7 @@ mrf24_state_t ApplyDeviceMACAddress(void) {
 
     for (uint8_t i = 0; i < LARGE_MAC_SIZE; i++) {
 
-        if (SetShortAddr(EADR0 + i, data_config_s.mac[i]) == OPERATION_FAIL)
+        if (OPERATION_FAIL == SetShortAddr(EADR0 + i, data_config_s.mac[i]))
             return OPERATION_FAIL;
     }
     return OPERATION_OK;
@@ -312,7 +316,7 @@ mrf24_state_t MRF24J40Init(void) {
 
 mrf24_state_t MRF24SetChannel(channel_list_t ch) {
 
-    if (0x03 > ch || 0xF3 < ch)
+    if (CH_11 > ch || CH_26 < ch)
         return INVALID_VALUE;
     data_config_s.channel = ch;
     return OPERATION_OK;

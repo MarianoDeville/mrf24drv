@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "drv_mrf24j40.h": "c",
-        "compatibility.h": "c"
+        "compatibility.h": "c",
+        "mock_drv_mrf24j40_internal_functions.h": "c",
+        "mock_app_delay_unlock.h": "c"
     }
 }
