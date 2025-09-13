@@ -159,6 +159,16 @@ void test_comprobar_que_se_lee_un_valor_al_consultar_una_direccionde_1_byte_por_
     TEST_ASSERT_EQUAL(OPERATION_FAIL, respuesta);
 }
 
+// comprobar que se lee un valor al consultar una direccion de 1 byte por SPI con error null pointer
+void test_comprobar_que_se_lee_un_valor_al_consultar_una_direccionde_1_byte_por_SPI_con_error_null_pointer(
+    void) {
+
+    uint8_t reg = 0x33;
+    // retorno esperado
+    mrf24_state_t respuesta = GetShortAddr(reg, NULL);
+    TEST_ASSERT_EQUAL(INVALID_VALUE, respuesta);
+}
+
 // comprobar que se envía una direccion de 2 bytes  y un dato por SPI sin errores
 void test_comprobar_que_se_envia_una_direccionde_2_bytes_y_un_dato_por_SPI_sin_errores(void) {
 
@@ -269,6 +279,17 @@ void test_comprobar_que_se_lee_un_valor_al_consultar_una_direccionde_2_bytes_por
     mrf24_state_t estado = GetLongAddr(reg, &resultado);
     TEST_ASSERT_EQUAL_HEX8(valor_esperado, resultado);
     TEST_ASSERT_EQUAL_HEX8(OPERATION_FAIL, estado);
+}
+
+// comprobar que se lee un valor al consultar una direccion de 2 bytes por SPI con error null
+// pointer
+void test_comprobar_que_se_lee_un_valor_al_consultar_una_direccionde_2_bytes_por_SPI_con_error_null_pointer(
+    void) {
+
+    uint16_t reg = 0x0222;
+    // retorno esperado
+    mrf24_state_t estado = GetLongAddr(reg, NULL);
+    TEST_ASSERT_EQUAL_HEX8(INVALID_VALUE, estado);
 }
 
 // probar que ApplyChannel devuelve FAIL si SetLongAddr falla
