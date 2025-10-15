@@ -11,6 +11,8 @@
 #define SHIFT_LONG_ADDR  (0X05)
 #define SHIFT_SHORT_ADDR (0X01)
 
+extern mrf24_state_t estadoActual;
+
 extern mrf24_state_t SetShortAddr(uint8_t reg_address, uint8_t valor);
 extern mrf24_state_t GetShortAddr(uint8_t reg_address, uint8_t * respuesta);
 extern mrf24_state_t SetLongAddr(uint16_t reg_address, uint8_t valor);
@@ -295,6 +297,41 @@ void test_comprobar_que_se_lee_un_valor_al_consultar_una_direccionde_2_bytes_por
 // probar que ApplyChannel devuelve FAIL si SetLongAddr falla
 void test_ApplyChannel_devuelve_fail_si_SetLongAddr_falla(void) {
 
+    SetCSPin_Ignore();
+    WriteByteSPIPort_IgnoreAndReturn(SPI_COMM_OK);
+    Write2ByteSPIPort_IgnoreAndReturn(SPI_COMM_ERROR);
+    // retorno esperado
     mrf24_state_t respuesta = ApplyChannel();
     TEST_ASSERT_EQUAL(OPERATION_FAIL, respuesta);
+}
+
+// probar que MRF24IsNewMsg devuelve UNEXPECTED_ERROR si estadoActual no esta inicializado
+void test_MRF24IsNewMsg_devuelve_UNEXPECTED_ERROR_si_estadoActual_no_esta_inicializado(void) {
+
+    estadoActual = INIT_FAIL;
+    IsMRF24Interrup_IgnoreAndReturn(true);
+    // retorno esperado
+    mrf24_state_t respuesta = MRF24IsNewMsg();
+    TEST_ASSERT_EQUAL(UNEXPECTED_ERROR, respuesta);
+}
+
+// probar que MRF24IsNewMsg devuelve MSG_PRESENT si la bandera de mensaje pendiente esta levantada
+void test_MRF24IsNewMsg_devuelve_MSG_PRESENT_si_la_bandera_de_mensaje_pendiente_esta_levantada(
+    void) {
+
+    estadoActual = INIT_OK;
+    IsMRF24Interrup_IgnoreAndReturn(true);
+    // retorno esperado
+    mrf24_state_t respuesta = MRF24IsNewMsg();
+    TEST_ASSERT_EQUAL(MSG_PRESENT, respuesta);
+}
+
+// probar que MRF24IsNewMsg devuelve MSG_PRESENT si la bandera de mensaje pendiente esta baja
+void test_MRF24IsNewMsg_devuelve_MSG_PRESENT_si_la_bandera_de_mensaje_pendiente_esta_baja(void) {
+
+    estadoActual = INIT_OK;
+    IsMRF24Interrup_IgnoreAndReturn(false);
+    // retorno esperado
+    mrf24_state_t respuesta = MRF24IsNewMsg();
+    TEST_ASSERT_EQUAL(BUFFER_EMPTY, respuesta);
 }

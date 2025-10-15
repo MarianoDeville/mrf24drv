@@ -656,4 +656,4 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/c,tex,linux,altium,eclipse,windows,visualstudiocode,latex
 
-build
+/build

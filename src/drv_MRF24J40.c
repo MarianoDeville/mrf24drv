@@ -41,7 +41,7 @@
 #define MY_DEFAULT_ADDRESS (0xFFFE)
 
 /* === Definición de variables privadas ======================================= */
-static mrf24_state_t estadoActual = INIT_FAIL;
+mrf24_state_t estadoActual = INIT_FAIL;
 static mrf24_data_config_t data_config_s = {0};
 static mrf24_data_out_t data_out_s = {0};
 static mrf24_data_in_t data_in_s = {0};
@@ -428,7 +428,7 @@ mrf24_state_t MRF24IsNewMsg(void) {
     if (INIT_OK != estadoActual)
         return UNEXPECTED_ERROR;
 
-    if (!IsMRF24Interrup())
+    if (IsMRF24Interrup())
         return MSG_PRESENT;
     return BUFFER_EMPTY;
 }
